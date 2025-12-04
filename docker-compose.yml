@@ -1,0 +1,65 @@
+# ============================================
+# Docker Compose - Tienda de Ropa
+# Producción para VPS
+# Dominio: tiendaropa.webdeploy.tech
+# IP: 20.163.15.92
+# ============================================
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: db-tiendaropa
+    restart: always
+    environment:
+      POSTGRES_USER: usr_tienda_de_ropa
+      POSTGRES_PASSWORD: tiendaderopa123
+      POSTGRES_DB: BD_Tienda_de_Ropa
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usr_tienda_de_ropa -d BD_Tienda_de_Ropa"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # ⚠️ NO exponer puerto en producción
+
+  backend:
+    build:
+      context: ./backend_sis257_tiendaropa
+      dockerfile: Dockerfile
+    container_name: api-tiendaropa
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend_sis257_tiendaropa/.env
+    networks:
+      - app-network
+    # ⚠️ NO exponer puerto (Nginx hace proxy)
+
+  nginx:
+    build:
+      context: ./frontend_sis257_tiendaropa
+      dockerfile: Dockerfile
+    container_name: nginx-tiendaropa
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Certificados SSL de Let's Encrypt
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+
+networks:
+  app-network:
+    driver: bridge
