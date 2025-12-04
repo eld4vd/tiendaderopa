@@ -609,7 +609,7 @@ function openEditModal() {
   // Formatear fecha para input date (YYYY-MM-DD)
   if (cliente.value?.fechaNacimiento) {
     const fecha = new Date(cliente.value.fechaNacimiento)
-    form.fechaNacimiento = fecha.toISOString().split('T')[0]
+    form.fechaNacimiento = fecha.toISOString().split('T')[0] ?? ''
   } else {
     form.fechaNacimiento = ''
   }

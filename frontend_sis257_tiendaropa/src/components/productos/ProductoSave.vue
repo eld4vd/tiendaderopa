@@ -77,12 +77,12 @@ watch(
         precio.value = props.producto.precio
         stock.value = props.producto.stock
         // Parsear tallas existentes
-        const tallaExistente = props.producto.tallas || props.producto.talla
+        const tallaExistente = (props.producto.tallas || props.producto.talla) as string | string[] | undefined
         if (tallaExistente) {
           if (Array.isArray(tallaExistente)) {
             tallasSeleccionadas.value = tallaExistente
           } else {
-            tallasSeleccionadas.value = tallaExistente.split(',').map((t: string) => t.trim()).filter((t: string) => t)
+            tallasSeleccionadas.value = (tallaExistente as string).split(',').map((t: string) => t.trim()).filter((t: string) => t)
           }
         } else {
           tallasSeleccionadas.value = []
